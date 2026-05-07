@@ -1,12 +1,12 @@
 from pynput.keyboard import Key, Listener
 import snakeoil as snakeoil3
 import time
-import json
-
+import os
 
 class ArcadeController:
-    def __init__(self): 
-        self.keys = set() 
+    def __init__(self):
+        self.keys = set()
+
         self.state = {
             'steer': 0.0,
             'accel': 0.0,
@@ -29,36 +29,32 @@ class ArcadeController:
     def release(self, key):
         self.keys.discard(key)
 
-
     def update(self, sensors):
         speed = sensors.get('speedX', 0)
         angle = sensors.get('angle', 0)
-        rpm = sensors.get('rpm', 0)
 
-    
         # ========================
-        # ACCELERAZIONE SMOOTH
+        # ACCELERAZIONE REATTIVA
         # ========================
         target_accel = 1.0 if Key.up in self.keys else 0.0
-        self.state['accel'] += (target_accel - self.state['accel']) * 0.05
+        self.state['accel'] += (target_accel - self.state['accel']) * 0.3
 
         # ========================
-        # FRENO
+        # FRENO REATTIVO
         # ========================
         target_brake = 1.0 if Key.down in self.keys else 0.0
-        self.state['brake'] += (target_brake - self.state['brake']) * 0.2
+        self.state['brake'] += (target_brake - self.state['brake']) * 0.6
 
         # ========================
-        # STEERING INPUT
+        # STERZO REATTIVO
         # ========================
-        # INPUT
         steer_input = 0.0
         if Key.left in self.keys:
-            steer_input += 0.35
+            steer_input += 0.8
         if Key.right in self.keys:
-            steer_input -= 0.35
+            steer_input -= 0.8
 
-        # LIMITE VELOCITÀ
+        # LIMITE VELOCITÀ SULLO STERZO
         max_steer = max(0.25, 1.0 - speed / 200.0)
         steer_input *= max_steer
 
@@ -69,21 +65,18 @@ class ArcadeController:
             stability = angle * 0.3
             steer_target = steer_input - stability
 
-        # SMOOTH
-        self.state['steer'] += (steer_target - self.state['steer']) * 0.2
+        # SMOOTH VELOCE
+        self.state['steer'] += (steer_target - self.state['steer']) * 0.6
 
         # DEAD ZONE
         if abs(self.state['steer']) < 0.02:
             self.state['steer'] = 0.0
 
-        # clamp
+        # CLAMP (limita i valori per sicurezza)
         self.state['steer'] = max(-1.0, min(1.0, self.state['steer']))
         self.state['accel'] = max(0.0, min(1.0, self.state['accel']))
         self.state['brake'] = max(0.0, min(1.0, self.state['brake']))
-
-        # marce
         self.state['gear'] = max(-1, min(6, self.state['gear']))
-
 
 # ============================================================
 # MAIN
@@ -95,78 +88,69 @@ def main():
 
     client.get_servers_input()
 
-    print("Arcade driving mode attivo")
-    print("Freccie per guidare, W/S per marce")
+    print("========================================")
+    print("🚗 Arcade driving mode attivo (No-Lag) 🚗")
+    print("Frecce direzionali: Guida")
+    print("Tasti W / S: Marcia Su / Marcia Giù")
+    print("Premi CTRL+C nel terminale per salvare e uscire.")
+    print("========================================")
 
-
-    # CSV log
-    log_csv = open("manual_log.csv", "w")
-    log_csv.write("time,steer,accel,brake,gear,speedX,trackPos,angle,rpm,damage\n")
-
-    # JSON log (step-by-step strutturato)
-    log_json = []
+    file_name = "manual.csv"
     
+    # Controllo per l'Append
+    csv_exists = os.path.isfile(file_name)
+    log_csv = open(file_name, "a")
+    
+    # Intestazione solo se il file è nuovo
+    if not csv_exists:
+        track_headers = ",".join([f"track_{i}" for i in range(19)])
+        log_csv.write(f"time,steer,accel,brake,gear,speedX,trackPos,angle,rpm,damage,{track_headers}\n")
+
     t0 = time.time()
     step = 0
+    LOG_STEP = 20 # Salva nel CSV circa 2.5 volte al secondo (a 50Hz)
 
-    while True:
-        S = client.S.d
+    try:
+        while True:
+            S = client.S.d
 
-        controller.update(S)
-        a = controller.state
-        
-        print(f"steer={a['steer']:.2f} accel={a['accel']:.2f} brake={a['brake']:.2f} gear={a['gear']}")
+            # 1. Aggiorna l'input del controller
+            controller.update(S)
+            a = controller.state
 
-        client.R.d['steer'] = a['steer']
-        client.R.d['accel'] = a['accel']
-        client.R.d['brake'] = a['brake']
-        client.R.d['gear'] = a['gear']
-        client.R.d['clutch'] = 0.0
-        client.R.d['meta'] = 0
+            # 2. Prepara la risposta per il server
+            client.R.d['steer'] = a['steer']
+            client.R.d['accel'] = a['accel']
+            client.R.d['brake'] = a['brake']
+            client.R.d['gear'] = a['gear']
+            client.R.d['clutch'] = 0.0
+            client.R.d['meta'] = 0
 
-        client.respond_to_server()
-        client.get_servers_input()
+            # 3. Invia i comandi a TORCS
+            client.respond_to_server()
+            
+            # 4. Aspetta i nuovi sensori dal server (Sostituisce il time.sleep!)
+            client.get_servers_input()
 
-        #S = client.S.d
+            # 5. Logging dei dati sul CSV
+            if step % LOG_STEP == 0:
+                current_time = time.time() - t0
+                track_sensors = S.get('track', [0.0] * 19)
+                track_str = ",".join([str(x) for x in track_sensors])
 
-        current_time = time.time() - t0
+                log_csv.write(
+                    f"{current_time},{a['steer']},{a['accel']},{a['brake']},{a['gear']},"
+                    f"{S.get('speedX',0)},{S.get('trackPos',0)},{S.get('angle',0)},"
+                    f"{S.get('rpm',0)},{S.get('damage',0)},{track_str}\n"
+                )
 
-        # ===== CSV LOG =====
-        log_csv.write(
-            f"{current_time},{a['steer']},{a['accel']},{a['brake']},{a['gear']},"
-            f"{S.get('speedX',0)},{S.get('trackPos',0)},{S.get('angle',0)},"
-            f"{S.get('rpm',0)},{S.get('damage',0)}\n"
-        )
+            step += 1
 
-        # ===== JSON LOG (STEP-BY-STEP) =====
-        log_json.append({
-            "step": step,
-            "time": current_time,
-            "action": {
-                "steer": a['steer'],
-                "accel": a['accel'],
-                "brake": a['brake'],
-                "gear": a['gear']
-            },
-            "state": {
-                "speedX": S.get('speedX', 0),
-                "trackPos": S.get('trackPos', 0),
-                "angle": S.get('angle', 0),
-                "rpm": S.get('rpm', 0),
-                "damage": S.get('damage', 0)
-            }
-        })
-
-        step += 1
-
-        # salva JSON ogni tot step (evita perdita dati)
-        if step % 100 == 0:
-            with open("manual_log.json", "w") as f:
-                json.dump(log_json, f, indent=2)
-                
-                
-        time.sleep(0.02)
-
+    except KeyboardInterrupt:
+        print("\nGuida interrotta dall'utente. Salvataggio dei log in corso...")
+    finally:
+        log_csv.close()
+        print(f"Log salvati con successo nel file '{file_name}'. Uscita.")
 
 if __name__ == "__main__":
     main()
