@@ -24,6 +24,16 @@ class ArcadeController:
 
     def press(self, key):
         self.keys.add(key)
+        
+        # REINTRODUZIONE W/S PER OVERRIDE MANUALE (Folle e Retromarcia)
+        if hasattr(key, "char") and key.char is not None:
+            char = key.char.lower()
+            if char == 'w' and self.state['gear'] < 6:
+                self.state['gear'] += 1
+                self.last_shift_time = time.time()
+            elif char == 's' and self.state['gear'] > -1:
+                self.state['gear'] -= 1
+                self.last_shift_time = time.time()
 
     def release(self, key):
         self.keys.discard(key)
