@@ -38,7 +38,7 @@ STEER_INPUT_STEP = 1.1    # alzarne il valore rende il volante più sensibile
 MIN_STEER_FACTOR = 0.5    # alzarne il valore rende le curve più aggressive ad alta velocità
 STEER_SMOOTH     = 0.16   # velocità con cui le ruote della machina girano
 STEER_CENTERING  = 0.14   # velocità con cui viene riportato il volante nella posizione centrale
-SPEED_STEER_DAMP = 185    # irrigidisce lo sterzo all'aumentare della velocità 
+SPEED_STEER_DAMP = 210    # irrigidisce lo sterzo all'aumentare della velocità 
 
 #  Acceleratore / Freno 
 ACCEL_SMOOTH = 0.55  
