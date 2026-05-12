@@ -6,8 +6,6 @@ from pynput.keyboard import Key, Listener
 #  Raccolta dati 
 DATASET_DIR       = "Laps"   # Cartella di output dei CSV
 LOG_EVERY_N_STEPS = 5
-MIN_SPEED_TO_LOG  = 5.0
-MAX_STEPS         = 200_000
 TRACK_LIMIT_RESET = 1.2
 DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
 
@@ -268,7 +266,7 @@ def run_lap(controller: ManualController, episode: int, t0: float) -> int:
             client.respond_to_server()
 
             # ACCUMULA nel buffer 
-            if step % LOG_EVERY_N_STEPS == 0 and speed >= MIN_SPEED_TO_LOG:
+            if step % LOG_EVERY_N_STEPS == 0 and speed > 5:
                 buf_csv.append(_build_csv_row(time.time() - t0, actions, sensors))
 
                 if len(buf_csv) % 50 == 0:

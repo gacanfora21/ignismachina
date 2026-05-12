@@ -14,8 +14,7 @@ import snakeoil as snakeoil3
 # Configurazioni
 DATASET_FILE = "dataset.csv"
 LAPS_FOLDER  = "Laps"
-K_NEIGHBORS  = 15
-MAX_STEPS    = 200_000
+K_NEIGHBORS  = 7
 
 
 def merge_laps(laps_folder: str, output_path: str) -> None:
@@ -100,15 +99,16 @@ def main():
     try:
         while True:
             client.get_servers_input()
-            print("=== Gara Iniziata (Guida Autonoma KNN) ===")
+            print("Gara Iniziata (Guida Autonoma KNN)")
 
-            for step in range(MAX_STEPS):
+            while True:
                 sensors = client.S.d
 
                 if abs(sensors.get('trackPos', 0.0)) > 1.4:
                     print("L'AI è uscita di pista! Riavvio sessione...")
                     client.R.d['meta'] = 1
                     client.respond_to_server()
+                    time.sleep(2)
                     break
 
                 actions = ai_driver.predici_azioni(sensors)

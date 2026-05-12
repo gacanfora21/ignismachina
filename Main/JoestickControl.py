@@ -6,16 +6,14 @@ import pygame # libreria controller
 # Raccolta dati 
 DATASET_DIR       = "Laps"   # Cartella di output dei CSV
 LOG_EVERY_N_STEPS = 5        # Salva un campione ogni N step
-MIN_SPEED_TO_LOG  = 5.0      # Velocità minima (km/h) per loggare
-MAX_STEPS         = 200_000  # Numero massimo di step per giro
 TRACK_LIMIT_RESET = 1.3      # |trackPos| oltre cui il giro viene invalidato
 DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
 
 # Mappatura Marce Automatiche 
 # RPM soglia per scalare la marcia su
 UPSHIFT_RPM = {
-    1: 7500,
-    2: 8000,
+    1: 5500,
+    2: 7500,
     3: 8500,
     4: 9500,
     5: 10500
@@ -277,7 +275,7 @@ def run_lap(controller: JoystickController, episode: int, t0: float) -> int:
             client.respond_to_server()
 
             # ACCUMULA nel buffer 
-            if step % LOG_EVERY_N_STEPS == 0 and speed >= MIN_SPEED_TO_LOG:
+            if step % LOG_EVERY_N_STEPS == 0 and speed > 5:
                 buf_csv.append(_build_csv_row(time.time() - t0, actions, sensors))
 
                 if len(buf_csv) % 50 == 0:
