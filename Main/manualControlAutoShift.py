@@ -5,7 +5,7 @@ from pynput.keyboard import Key, Listener
 
 #  Raccolta dati 
 DATASET_DIR       = "Laps"   # Cartella di output dei CSV
-LOG_EVERY_N_STEPS = 3
+LOG_EVERY_N_STEPS = 2
 TRACK_LIMIT_RESET = 1.2
 DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
 

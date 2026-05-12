@@ -5,7 +5,7 @@ import pygame # libreria controller
 
 # Raccolta dati 
 DATASET_DIR       = "Laps"   # Cartella di output dei CSV
-LOG_EVERY_N_STEPS = 3        # Salva un campione ogni N step
+LOG_EVERY_N_STEPS = 2        # Salva un campione ogni N step
 TRACK_LIMIT_RESET = 1.3      # |trackPos| oltre cui il giro viene invalidato
 DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
 
