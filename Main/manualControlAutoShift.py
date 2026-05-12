@@ -5,39 +5,38 @@ from pynput.keyboard import Key, Listener
 
 #  Raccolta dati 
 DATASET_DIR       = "Laps"   # Cartella di output dei CSV
-LOG_EVERY_N_STEPS = 2
-TRACK_LIMIT_RESET = 1.2
+LOG_EVERY_N_STEPS = 1
+TRACK_LIMIT_RESET = 1.3
 DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
 
 #  Mappatura Marce Automatiche 
 UPSHIFT_RPM = {
-    1: 5500,   # Cambia in 2a a 5500 giri
-    2: 7500,   
-    3: 8500,   
-    4: 9500,   
-    5: 10500   
+    1: 9000,   # Cambia in 2a a 9000 giri
+    2: 9000,   
+    3: 9000,   
+    4: 11000,   
+    5: 14000   
 }
 
 DOWNSHIFT_RPM = {
-    2: 3500,   # Scala in 1a solo se scendi sotto i 3500 giri
-    3: 4500,  
-    4: 5500,   
-    5: 6500,   
-    6: 7500   
+    2: 6000,   # Scala in 1a solo se scendi sotto i 5000 giri
+    3: 8000,  
+    4: 9000,   
+    5: 10000,   
+    6: 12000   
 }
 
 SHIFT_COOLDOWN = 0.5 
 
-#  Elettronica di Sicurezza 
-SOFT_REV_LIMIT_RPM = 13200    
-HARD_REV_LIMIT_RPM = 13800    
-TCS_SLIP_THRESHOLD = 3.0     
+#SOFT_REV_LIMIT_RPM = 19000    
+#HARD_REV_LIMIT_RPM = 20000   
+TCS_SLIP_THRESHOLD = 2.5    #soglia di slittamento    
 
 #  Sterzo 
 STEER_INPUT_STEP = 1.1    # alzarne il valore rende il volante più sensibile 
 MIN_STEER_FACTOR = 0.5    # alzarne il valore rende le curve più aggressive ad alta velocità
 STEER_SMOOTH     = 0.16   # velocità con cui le ruote della machina girano
-STEER_CENTERING  = 0.14   # velocità con cui viene riportato il volante nella posizione centrale
+STEER_CENTERING  = 0.10   # velocità con cui viene riportato il volante nella posizione centrale
 SPEED_STEER_DAMP = 210    # irrigidisce lo sterzo all'aumentare della velocità 
 
 #  Acceleratore / Freno 
@@ -83,7 +82,7 @@ class ManualController:
         gear = self.state['gear']
 
         # Utilizza UPSHIFT_RPM_MODIF invece del dizionario base
-        if gear < 6 and rpm > UPSHIFT_RPM_MODIF.get(gear, 13000):
+        if gear < 6 and rpm > UPSHIFT_RPM_MODIF.get(gear, 18700):
             self.state['gear'] += 1
             self._last_shift_time = now
             
@@ -104,12 +103,12 @@ class ManualController:
         self.state['accel'] += (target_accel - self.state['accel']) * ACCEL_SMOOTH
         self.state['accel']  = max(0.0, min(1.0, self.state['accel']))
 
-        # Soft Rev Limiter
-        if rpm > SOFT_REV_LIMIT_RPM:
-            over_rev = rpm - SOFT_REV_LIMIT_RPM
-            range_rev = HARD_REV_LIMIT_RPM - SOFT_REV_LIMIT_RPM
-            reduction = min(0.7, over_rev / range_rev)
-            self.state['accel'] *= (1.0 - reduction)
+        # # 
+        # if rpm > SOFT_REV_LIMIT_RPM:
+        #     over_rev = rpm - SOFT_REV_LIMIT_RPM
+        #     range_rev = HARD_REV_LIMIT_RPM - SOFT_REV_LIMIT_RPM
+        #     reduction = min(0.7, over_rev / range_rev)
+        #     self.state['accel'] *= (1.0 - reduction)
 
         # TCS (Permette più accelerazione in 1a marcia)
         wheel = sensors.get('wheelSpinVel', [0.0] * 4)

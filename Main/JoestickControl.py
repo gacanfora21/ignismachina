@@ -5,42 +5,43 @@ import pygame # libreria controller
 
 # Raccolta dati 
 DATASET_DIR       = "Laps"   # Cartella di output dei CSV
-LOG_EVERY_N_STEPS = 2        # Salva un campione ogni N step
+LOG_EVERY_N_STEPS = 1        # Salva un campione ogni N step
 TRACK_LIMIT_RESET = 1.3      # |trackPos| oltre cui il giro viene invalidato
 DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
 
 # Mappatura Marce Automatiche 
 # RPM soglia per scalare la marcia su
 UPSHIFT_RPM = {
-    1: 5500,
-    2: 7500,
-    3: 8500,
-    4: 9500,
-    5: 10500
+    1: 9000,   # Cambia in 2a a 9000 giri
+    2: 9000,   
+    3: 9000,   
+    4: 11000,   
+    5: 14000   
 }
 
 # RPM soglia per scalare la marcia giù
 DOWNSHIFT_RPM = {
-    2: 3500,
-    3: 4500,
-    4: 5500,
-    5: 6500,
-    6: 7500
+    2: 6000,   # Scala in 1a solo se scendi sotto i 5000 giri
+    3: 8000,  
+    4: 9000,   
+    5: 10000,   
+    6: 12000   
 }
+
 
 SHIFT_COOLDOWN = 0.5  # Secondi minimi tra un cambio marcia e il successivo
 
 #  Elettronica di Sicurezza 
-SOFT_REV_LIMIT_RPM = 13200   # RPM oltre cui inizia a ridurre l'acceleratore
-HARD_REV_LIMIT_RPM = 13800   # RPM oltre cui taglia completamente l'acceleratore
-TCS_SLIP_THRESHOLD = 3.0     # Soglia di slittamento per il controllo trazione
+#SOFT_REV_LIMIT_RPM = 13200   # RPM oltre cui inizia a ridurre l'acceleratore
+#HARD_REV_LIMIT_RPM = 13800   # RPM oltre cui taglia completamente l'acceleratore
+TCS_SLIP_THRESHOLD = 2.5     # Soglia di slittamento per il controllo trazione
 
 #  Sterzo 
 STEER_INPUT_STEP = 1     # Sensibilità del volante (valori più alti = più reattivo)
 MIN_STEER_FACTOR = 0.45  # Angolo minimo applicato in curva ad alta velocità
 STEER_SMOOTH     = 0.15  # Velocità di rotazione delle ruote
 STEER_CENTERING  = 0.10  # Velocità di ritorno del volante al centro
-SPEED_STEER_DAMP = 180   # Fattore di smorzamento sterzo all'aumentare della velocità
+SPEED_STEER_DAMP = 190   # Fattore di smorzamento sterzo all'aumentare della velocità
 
 #  Acceleratore / Freno 
 ACCEL_SMOOTH = 0.55  # Interpolazione apertura acceleratore (0=istantaneo, 1=lentissimo)
@@ -99,7 +100,7 @@ class JoystickController:
 
         gear = self.state['gear']
 
-        if gear < 6 and rpm > UPSHIFT_RPM_MODIF.get(gear, 13000):
+        if gear < 6 and rpm > UPSHIFT_RPM_MODIF.get(gear, 18700):
             self.state['gear'] += 1
             self._last_shift_time = now
         elif gear > 1 and rpm < DOWNSHIFT_RPM.get(gear, 0):
@@ -144,7 +145,7 @@ class JoystickController:
         pygame.quit()
 
 
-# ── CSV  ────────────────────────────────────────────────────────────────
+# Cosruzione CSV  
 
 def _build_csv_header() -> str:
     """Restituisce la riga di intestazione del CSV."""
@@ -244,7 +245,7 @@ def run_lap(controller: JoystickController, episode: int, t0: float) -> int:
             speed     = sensors.get('speedX',   0.0)
             damage    = sensors.get('damage',   0.0)
 
-            # ELABORA: validità giro ────────────────────────────────────────
+            # ELABORA: validità giro 
             if damage > last_damage:
                 if is_lap_valid:
                     print(f"\n Giro invalidato (danno) — dati scartati.")
@@ -259,7 +260,7 @@ def run_lap(controller: JoystickController, episode: int, t0: float) -> int:
                 client.respond_to_server()
                 break
 
-            # ELABORA: aggiorna controller e prepara comandi ────────────────
+            # ELABORA: aggiorna controller e prepara comandi 
             controller.update(sensors)
             actions = controller.state
 
