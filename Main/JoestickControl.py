@@ -8,8 +8,8 @@ DATASET_DIR       = "Laps"   # Cartella di output dei CSV
 LOG_EVERY_N_STEPS = 5        # Salva un campione ogni N step
 MIN_SPEED_TO_LOG  = 5.0      # Velocità minima (km/h) per loggare
 MAX_STEPS         = 200_000  # Numero massimo di step per giro
-TRACK_LIMIT_RESET = 1.3      # |trackPos| oltre cui il giro viene invalidato
-DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene scartato
+TRACK_LIMIT_RESET = 1.3     # |trackPos| oltre cui il giro viene invalidato
+DAMAGE_THRESHOLD  = 10      # Danno accumulato (delta) oltre cui il giro viene scartato
 
 # Mappatura Marce Automatiche 
 # RPM soglia per scalare la marcia su
