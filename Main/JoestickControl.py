@@ -30,16 +30,15 @@ DOWNSHIFT_RPM = {
 
 
 SHIFT_COOLDOWN = 0.5  # Secondi minimi tra un cambio marcia e il successivo
-TCS_SLIP_THRESHOLD = 3  # Soglia di slittamento per il controllo trazione
+TCS_SLIP_THRESHOLD = 1.2  # Soglia di slittamento per il controllo trazione
 
 #  Sterzo 
-MIN_STEER_FACTOR = 0.40  # Angolo minimo applicato in curva ad alta velocità
 STEER_SMOOTH     = 0.13  # Velocità di reazione dello sterzo quando viene eseguito il comando
 STEER_CENTERING  = 0.10  # Velocità di ritorno del volante al centro
-SPEED_STEER_DAMP = 195   # Fattore di smorzamento sterzo all'aumentare della velocità
+SPEED_STEER_DAMP = 190   # Fattore di smorzamento sterzo all'aumentare della velocità
 
 #  Acceleratore / Freno 
-ACCEL_SMOOTH = 0.60  # Interpolazione apertura acceleratore (0=istantaneo, 1=lentissimo)
+ACCEL_SMOOTH = 0.55  # Interpolazione apertura acceleratore (0=istantaneo, 1=lentissimo)
 BRAKE_SMOOTH = 0.50  # Interpolazione pressione freno
 
 
@@ -124,6 +123,7 @@ class JoystickController:
 
         if abs(steer_axis) < 0.05:  # deadzone del ±0.05
             steer_axis = 0.0
+        
         self.state['steer'] = steer_axis
 
         accel_mapped = (self.joy.get_axis(5) + 1.0) / 2.0
@@ -142,6 +142,8 @@ class JoystickController:
             if rear_spin > TCS_SLIP_THRESHOLD:
                 slip_penalty = min(0.5, (rear_spin - TCS_SLIP_THRESHOLD) * 0.1)
                 self.state['accel'] *= (1.0 - slip_penalty)
+
+
 
     def stop(self):
         """Chiude Pygame e rilascia il joystick."""
