@@ -19,7 +19,7 @@ UPSHIFT_RPM = {
 }
 
 DOWNSHIFT_RPM = {
-    2: 6000,   # Scala in 1a solo se scendi sotto i 5000 giri
+    2: 6000,   # Scala in 1a solo se scendi sotto i 6000 giri
     3: 8000,  
     4: 9000,   
     5: 10000,   
@@ -33,14 +33,14 @@ SHIFT_COOLDOWN = 0.5
 TCS_SLIP_THRESHOLD = 2.5    #soglia di slittamento    
 
 #  Sterzo 
-STEER_INPUT_STEP = 1.1    # alzarne il valore rende il volante più sensibile 
+STEER_INPUT_STEP = 1      # forza con cui sterza il volante, metterlo a 0.5 girerebbe la metà
 MIN_STEER_FACTOR = 0.5    # alzarne il valore rende le curve più aggressive ad alta velocità
-STEER_SMOOTH     = 0.16   # velocità con cui le ruote della machina girano
+STEER_SMOOTH     = 0.13   # velocità con cui le ruote della machina girano
 STEER_CENTERING  = 0.10   # velocità con cui viene riportato il volante nella posizione centrale
 SPEED_STEER_DAMP = 210    # irrigidisce lo sterzo all'aumentare della velocità 
 
 #  Acceleratore / Freno 
-ACCEL_SMOOTH = 0.55  
+ACCEL_SMOOTH = 0.60  
 BRAKE_SMOOTH = 0.50   
 
 

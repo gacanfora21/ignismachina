@@ -12,39 +12,34 @@ DAMAGE_THRESHOLD  = 20       # Danno accumulato (delta) oltre cui il giro viene 
 # Mappatura Marce Automatiche 
 # RPM soglia per scalare la marcia su
 UPSHIFT_RPM = {
-    1: 9000,   # Cambia in 2a a 9000 giri
-    2: 9000,   
-    3: 9000,   
-    4: 11000,   
-    5: 14000   
+    1: 6000,
+    2: 8500,
+    3: 9500,
+    4: 10500,
+    5: 12500
 }
 
 # RPM soglia per scalare la marcia giù
 DOWNSHIFT_RPM = {
-    2: 6000,   # Scala in 1a solo se scendi sotto i 5000 giri
-    3: 8000,  
-    4: 9000,   
-    5: 10000,   
-    6: 12000   
+    2: 4500,
+    3: 5500,
+    4: 6500,
+    5: 8500,
+    6: 9500
 }
 
 
 SHIFT_COOLDOWN = 0.5  # Secondi minimi tra un cambio marcia e il successivo
-
-#  Elettronica di Sicurezza 
-#SOFT_REV_LIMIT_RPM = 13200   # RPM oltre cui inizia a ridurre l'acceleratore
-#HARD_REV_LIMIT_RPM = 13800   # RPM oltre cui taglia completamente l'acceleratore
-TCS_SLIP_THRESHOLD = 2.5     # Soglia di slittamento per il controllo trazione
+TCS_SLIP_THRESHOLD = 3  # Soglia di slittamento per il controllo trazione
 
 #  Sterzo 
-STEER_INPUT_STEP = 1     # Sensibilità del volante (valori più alti = più reattivo)
-MIN_STEER_FACTOR = 0.45  # Angolo minimo applicato in curva ad alta velocità
-STEER_SMOOTH     = 0.15  # Velocità di rotazione delle ruote
+MIN_STEER_FACTOR = 0.40  # Angolo minimo applicato in curva ad alta velocità
+STEER_SMOOTH     = 0.13  # Velocità di reazione dello sterzo quando viene eseguito il comando
 STEER_CENTERING  = 0.10  # Velocità di ritorno del volante al centro
-SPEED_STEER_DAMP = 190   # Fattore di smorzamento sterzo all'aumentare della velocità
+SPEED_STEER_DAMP = 195   # Fattore di smorzamento sterzo all'aumentare della velocità
 
 #  Acceleratore / Freno 
-ACCEL_SMOOTH = 0.55  # Interpolazione apertura acceleratore (0=istantaneo, 1=lentissimo)
+ACCEL_SMOOTH = 0.60  # Interpolazione apertura acceleratore (0=istantaneo, 1=lentissimo)
 BRAKE_SMOOTH = 0.50  # Interpolazione pressione freno
 
 
@@ -139,6 +134,14 @@ class JoystickController:
 
         self.state['accel'] = accel_mapped
         self.state['brake'] = brake_mapped
+
+        # TCS
+        wheel = sensors.get('wheelSpinVel', [0.0] * 4)
+        if len(wheel) == 4:
+            rear_spin = (wheel[2] + wheel[3]) - (wheel[0] + wheel[1])
+            if rear_spin > TCS_SLIP_THRESHOLD:
+                slip_penalty = min(0.5, (rear_spin - TCS_SLIP_THRESHOLD) * 0.1)
+                self.state['accel'] *= (1.0 - slip_penalty)
 
     def stop(self):
         """Chiude Pygame e rilascia il joystick."""
