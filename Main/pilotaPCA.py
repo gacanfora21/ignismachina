@@ -14,7 +14,7 @@ import snakeoil as snakeoil3
 # Configurazioni
 DATASET_FILE = "dataset.csv"
 LAPS_FOLDER  = "Laps"          # Cartella contenente i file lap_*.csv
-K_NEIGHBORS  = 7              # Numero di campioni vicini da consultare
+K_NEIGHBORS  = 5              # Numero di campioni vicini da consultare
 
 def merge_laps(laps_folder: str, output_path: str) -> None:
     """

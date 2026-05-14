@@ -14,7 +14,7 @@ import snakeoil as snakeoil3
 # Configurazioni
 DATASET_FILE = "dataset.csv"
 LAPS_FOLDER  = "Laps"
-K_NEIGHBORS  = 7
+K_NEIGHBORS  = 6
 
 
 def merge_laps(laps_folder: str, output_path: str) -> None:

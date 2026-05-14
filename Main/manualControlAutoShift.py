@@ -151,21 +151,33 @@ class ManualController:
 # Savataggio file in CSV
 
 def _build_csv_header() -> str:
-    track_cols = ",".join(f"track_{i}" for i in range(19))
-    return f"timestamp,steer,accel,brake,gear,speedX,trackPos,angle,rpm,damage,{track_cols}\n"
+    track_cols  = ",".join(f"track_{i}"       for i in range(19))
+    wheel_cols  = ",".join(f"wheelSpinVel_{i}" for i in range(4))
+    focus_cols  = ",".join(f"focus_{i}"        for i in range(5))
+    return (
+        f"timestamp,steer,accel,brake,gear,"
+        f"speedX,speedY,trackPos,angle,rpm,damage,"
+        f"{track_cols},{wheel_cols},{focus_cols}\n"
+    )
 
-def _build_csv_row(timestamp: float, actions: dict, sensors: dict) -> str:
-    track = sensors.get('track', [0.0] * 19)
+def _build_csv_row(timestamp, actions, sensors):
+    track = sensors.get('track',        [0.0] * 19)
+    wheel = sensors.get('wheelSpinVel', [0.0] * 4)
+    focus = sensors.get('focus',        [0.0] * 5)
+ 
     return (
         f"{timestamp:.3f},"
         f"{actions['steer']:.5f},{actions['accel']:.5f},"
         f"{actions['brake']:.5f},{int(actions['gear'])},"
         f"{sensors.get('speedX',   0.0):.4f},"
+        f"{sensors.get('speedY',   0.0):.4f},"       # FIX: era mancante
         f"{sensors.get('trackPos', 0.0):.5f},"
         f"{sensors.get('angle',    0.0):.5f},"
         f"{sensors.get('rpm',      0.0):.1f},"
         f"{sensors.get('damage',   0.0):.1f},"
-        + ",".join(f"{v:.4f}" for v in track) + "\n"
+        + ",".join(f"{v:.4f}" for v in track) + ","
+        + ",".join(f"{v:.4f}" for v in wheel) + ","  # FIX: era mancante
+        + ",".join(f"{v:.4f}" for v in focus) + "\n" # FIX: era mancante
     )
 
 def save_lap(lap_buffer_csv: list, lap_time: float) -> None:
