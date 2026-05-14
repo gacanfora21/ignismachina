@@ -30,14 +30,14 @@ SHIFT_COOLDOWN = 0.5
 
 #SOFT_REV_LIMIT_RPM = 19000    
 #HARD_REV_LIMIT_RPM = 20000   
-TCS_SLIP_THRESHOLD = 40    #soglia di slittamento    
+TCS_SLIP_THRESHOLD = 20    #soglia di slittamento    
 
 #  Sterzo 
 STEER_INPUT_STEP = 1      # forza con cui sterza il volante, metterlo a 0.5 girerebbe la metà
 MIN_STEER_FACTOR = 0.55    # alzarne il valore rende le curve più aggressive ad alta velocità
 STEER_SMOOTH     = 0.13   # velocità con cui le ruote della machina girano
 STEER_CENTERING  = 0.10   # velocità con cui viene riportato il volante nella posizione centrale
-SPEED_STEER_DAMP = 190    # irrigidisce lo sterzo all'aumentare della velocità 
+SPEED_STEER_DAMP = 195    # irrigidisce lo sterzo all'aumentare della velocità 
 
 #  Acceleratore / Freno 
 ACCEL_SMOOTH = 0.60  
