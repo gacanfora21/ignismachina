@@ -58,6 +58,7 @@ EPOCHS       = 100          # Numero di epoche di addestramento
 BATCH_SIZE   = 256          # Campioni per batch (SGD mini-batch)
 LEARNING_RATE = 1e-3        # Learning rate per Adam optimizer
 CHECKPOINT_EVERY = 50       # Salva checkpoint ogni N epoche (consiglio slide)
+LOAD_CHECKPOINT = None      # Carica il checkpoint, se posto a True, carica uno dei checkpointSalvati
 
 # Feature di input (normalizzate) — le 19 track sono molto informative per le curve
 FEATURE_NAMES = (
@@ -176,6 +177,16 @@ class PilotaBC:
           4. Addestra MLP con loss MSE e optimizer Adam
           5. Salva checkpoint ogni CHECKPOINT_EVERY epoche
         """
+
+        self.model = MLP(input_dim=X_train.shape[1]).to(self.device)
+
+        # Caricamento checkpoint se specificato
+        if LOAD_CHECKPOINT and os.path.exists(LOAD_CHECKPOINT):
+            self.model.load_state_dict(torch.load(LOAD_CHECKPOINT, map_location=self.device))
+            print(f"    Checkpoint caricato: {LOAD_CHECKPOINT}")
+            print("\n    MODELLO PRONTO! IN ATTESA DI TORCS...\n")
+            return  # salta il training, usa i pesi salvati
+
         print("[2] Caricamento dataset...")
         try:
             df = pd.read_csv(dataset_path, comment='#')
