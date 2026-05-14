@@ -30,14 +30,15 @@ SHIFT_COOLDOWN = 0.5
 
 #SOFT_REV_LIMIT_RPM = 19000    
 #HARD_REV_LIMIT_RPM = 20000   
-TCS_SLIP_THRESHOLD = 2.5    #soglia di slittamento    
+TCS_SLIP_THRESHOLD = 30    #soglia di slittamento    
+ANTIDRIFT = 0.15           #alzarlo riduce il drift
 
 #  Sterzo 
 STEER_INPUT_STEP = 1      # forza con cui sterza il volante, metterlo a 0.5 girerebbe la metà
-MIN_STEER_FACTOR = 0.5    # alzarne il valore rende le curve più aggressive ad alta velocità
-STEER_SMOOTH     = 0.13   # velocità con cui le ruote della machina girano
+MIN_STEER_FACTOR = 0.55   # alzarne il valore rende le curve più aggressive ad alta velocità
+STEER_SMOOTH     = 0.20    # velocità con cui le ruote della machina girano
 STEER_CENTERING  = 0.10   # velocità con cui viene riportato il volante nella posizione centrale
-SPEED_STEER_DAMP = 210    # irrigidisce lo sterzo all'aumentare della velocità 
+SPEED_STEER_DAMP = 190    # irrigidisce lo sterzo all'aumentare della velocità 
 
 #  Acceleratore / Freno 
 ACCEL_SMOOTH = 0.60  
@@ -135,7 +136,7 @@ class ManualController:
         if abs(raw_steer) < 0.01:
             steer_target = -angle * STEER_CENTERING 
         else:
-            steer_target = raw_steer - angle * 0.3
+            steer_target = raw_steer - angle * ANTIDRIFT
 
         self.state['steer'] += (steer_target - self.state['steer']) * STEER_SMOOTH
         
