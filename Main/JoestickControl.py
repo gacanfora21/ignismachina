@@ -30,7 +30,7 @@ DOWNSHIFT_RPM = {
 
 
 SHIFT_COOLDOWN = 0.5  # Secondi minimi tra un cambio marcia e il successivo
-TCS_SLIP_THRESHOLD = 20  # Soglia di slittamento per il controllo trazione
+TCS_SLIP_THRESHOLD = 5  # Soglia di slittamento per il controllo trazione
 
 #  Sterzo 
 STEER_SMOOTH     = 0.13  # Velocità di reazione dello sterzo quando viene eseguito il comando

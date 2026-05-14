@@ -30,7 +30,7 @@ SHIFT_COOLDOWN = 0.5
 
 #SOFT_REV_LIMIT_RPM = 19000    
 #HARD_REV_LIMIT_RPM = 20000   
-TCS_SLIP_THRESHOLD = 20    #soglia di slittamento    
+TCS_SLIP_THRESHOLD = 3    #soglia di slittamento    
 
 #  Sterzo 
 STEER_INPUT_STEP = 1      # forza con cui sterza il volante, metterlo a 0.5 girerebbe la metà
