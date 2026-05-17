@@ -30,7 +30,7 @@ DOWNSHIFT_RPM = {
 
 
 SHIFT_COOLDOWN = 0.5  # Secondi minimi tra un cambio marcia e il successivo
-TCS_SLIP_THRESHOLD = 20  # Soglia di slittamento per il controllo trazione
+TCS_SLIP_THRESHOLD = 5  # Soglia di slittamento per il controllo trazione
 
 #  Sterzo 
 STEER_SMOOTH     = 0.13  # Velocità di reazione dello sterzo quando viene eseguito il comando
@@ -172,14 +172,14 @@ def _build_csv_row(timestamp, actions, sensors):
         f"{actions['steer']:.5f},{actions['accel']:.5f},"
         f"{actions['brake']:.5f},{int(actions['gear'])},"
         f"{sensors.get('speedX',   0.0):.4f},"
-        f"{sensors.get('speedY',   0.0):.4f},"       # FIX: era mancante
+        f"{sensors.get('speedY',   0.0):.4f},"       
         f"{sensors.get('trackPos', 0.0):.5f},"
         f"{sensors.get('angle',    0.0):.5f},"
         f"{sensors.get('rpm',      0.0):.1f},"
         f"{sensors.get('damage',   0.0):.1f},"
         + ",".join(f"{v:.4f}" for v in track) + ","
-        + ",".join(f"{v:.4f}" for v in wheel) + ","  # FIX: era mancante
-        + ",".join(f"{v:.4f}" for v in focus) + "\n" # FIX: era mancante
+        + ",".join(f"{v:.4f}" for v in wheel) + ","  
+        + ",".join(f"{v:.4f}" for v in focus) + "\n" 
     )
 
 def save_lap(lap_buffer_csv: list, lap_time: float) -> None:

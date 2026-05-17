@@ -13,7 +13,7 @@ import snakeoil as snakeoil3
 
 # Configurazioni
 DATASET_FILE = "dataset.csv"
-LAPS_FOLDER  = "Laps"          # Cartella contenente i file lap_*.csv
+LAPS_FOLDER  = "csvTet"          # Cartella contenente i file lap_*.csv
 K_NEIGHBORS  = 5              # Numero di campioni vicini da consultare
 
 def merge_laps(laps_folder: str, output_path: str) -> None:
@@ -32,7 +32,7 @@ def merge_laps(laps_folder: str, output_path: str) -> None:
 
     print(f"Trovati {len(files)} giri da unire:")
     for f in files:
-        print(f"        - {f}")
+        print(f"{f}")
 
     dfs = [pd.read_csv(f) for f in files]
     merged = pd.concat(dfs, ignore_index=True)
@@ -46,7 +46,9 @@ class PilotaKNN:
         # Impostiamo la PCA per mantenere il 97% della varianza (informazione utile)
         self.pca = PCA(n_components=0.97) 
         
-        self.features_names = ['speedX', 'trackPos', 'angle'] + [f'track_{i}' for i in range(19)]
+        #self.features_names = ['speedX', 'trackPos', 'angle'] + [f'track_{i}' for i in range(19)]
+        self.features_names = (['speedX', 'speedY', 'trackPos', 'angle'] + [f'track_{i}' for i in range(19)])
+
         self.targets_names = ['steer', 'accel', 'brake', 'gear']
         
         self._addestra_modello(dataset_path)
@@ -95,6 +97,7 @@ class PilotaKNN:
         """Prende i sensori in tempo reale da TORCS e restituisce le azioni predette dal KNN"""
         current_state = [
             sensors.get('speedX', 0.0),
+            sensors.get('speedY', 0.0),
             sensors.get('trackPos', 0.0),
             sensors.get('angle', 0.0)
         ] + list(sensors.get('track', [200.0] * 19))
@@ -104,7 +107,7 @@ class PilotaKNN:
         # Trasformiamo i dati con la PCA prima di passarli al modello
         current_state_pca = self.pca.transform(current_state_scaled)
 
-        pred = self.model.predict(current_state_pca)[0]
+        pred = self.model.predict(current_state_pca)[0] 
 
         return {
             'steer': max(-1.0, min(1.0, pred[0])),
