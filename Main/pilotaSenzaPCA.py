@@ -42,7 +42,7 @@ class PilotaKNN:
             ('scaler', StandardScaler()),
             ('knn',    KNeighborsRegressor(n_neighbors=K_NEIGHBORS, weights='distance')),
         ])
-        self.features_names = ['speedX', 'trackPos', 'angle'] + [f'track_{i}' for i in range(19)]
+        self.features_names = ['speedX', 'speedY', 'trackPos', 'angle'] + [f'track_{i}' for i in range(19)]
         self.targets_names  = ['steer', 'accel', 'brake', 'gear']
         self._addestra_modello(dataset_path)
 
@@ -77,6 +77,7 @@ class PilotaKNN:
     def predici_azioni(self, sensors: dict) -> dict:
         current_state = [
             sensors.get('speedX', 0.0),
+            sensors.get('speedY', 0.0),
             sensors.get('trackPos', 0.0),
             sensors.get('angle', 0.0)
         ] + list(sensors.get('track', [200.0] * 19))
